@@ -4,11 +4,11 @@ import (
 	"strings"
 )
 
-type TXTHandler struct{}
+type TerminalHandler struct{}
 
-func (h TXTHandler) Handle(content string) func() ([]string, error) {
+func (h TerminalHandler) Handle(content string) func() ([]string, error) {
 	return func() ([]string, error) {
-		// Implement TXT handling logic here
+		// Implement terminal handling logic here
 		parts := strings.FieldsFunc(content, func(r rune) bool {
 			return r == ',' || r == ' '
 		})

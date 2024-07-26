@@ -17,14 +17,35 @@ func stringValidator(input string) error {
 }
 
 func inputTypeSelector() (string, error) {
-	prompt := promptui.Select{
-		Label: "Choose Input Type",
-		Items: []string{"Text File", "JSON File", "CSV File", "Terminal"},
+
+	type Option struct {
+		Name string
+		Ext  string
 	}
 
-	_, result, err := prompt.Run()
+	options := []Option{
+		{Name: "Text File", Ext: "txt"},
+		{Name: "JSON File", Ext: "json"},
+		{Name: "CSV File", Ext: "csv"},
+		{Name: "Terminal", Ext: "terminal"},
+	}
 
-	return result, err
+	items := make([]string, len(options))
+	for i, option := range options {
+		items[i] = option.Name
+	}
+
+	prompt := promptui.Select{
+		Label: "Choose Input Type",
+		Items: items,
+	}
+
+	index, _, err := prompt.Run()
+	if err != nil {
+		return "", err
+	}
+
+	return options[index].Ext, nil
 }
 
 func inputFilePath() (string, error) {
@@ -35,6 +56,7 @@ func inputFilePath() (string, error) {
 
 	result, err := prompt.Run()
 	if err != nil {
+		log.Infow("Error", "Error", err)
 		return "", err
 	}
 
@@ -96,11 +118,9 @@ func timeoutSelector() (int, error) {
 		Label:    "Enter Timeout",
 		Validate: integerValidator,
 	}
-
 	result, err := prompt.Run()
-	log.Info(result)
 	if len(result) == 0 {
-		cfg := config.GetConfig()
+		cfg := config.GetFlagConfig()
 		return cfg.Timeout, nil
 	}
 	if err != nil {
@@ -119,8 +139,8 @@ func triesSelector() (int, error) {
 	result, err := prompt.Run()
 
 	if len(result) == 0 {
-		cfg := config.GetConfig()
-		return cfg.Timeout, nil
+		cfg := config.GetFlagConfig()
+		return cfg.Tries, nil
 	}
 
 	if err != nil {

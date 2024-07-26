@@ -5,96 +5,143 @@ import (
 
 	"github.com/mukul-kr/dns-verifier/internal/config"
 	"github.com/mukul-kr/dns-verifier/pkg/logger"
+	"github.com/mukul-kr/dns-verifier/pkg/reader"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
 
 var (
-	inputType  string
-	inputFile  string
-	input      string
-	outputType string
-	outputFile string
-	timeout    int
-	tries      int
-	log        *zap.SugaredLogger
+	inputType               string
+	inputFile               string
+	input                   string
+	outputType              string
+	outputFile              string
+	timeout                 int
+	tries                   int
+	isMainPersistentFlagSet bool
+	log                     *zap.SugaredLogger
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "dns_verifier",
-	Short: "A simple DNS configuration for domains are properly set or not",
-	Long: `A simple DNS configuration for domains are properly set or not
-Text File:
-	url1.com
-	url2.com
-	...
+	Use:   config.GetCobraConfig().Use,
+	Short: config.GetCobraConfig().Short,
+	Long:  config.GetCobraConfig().Long,
 
-JSON File:
-	[
-		{"url": "url1.com"},
-		{"url": "url2.com"},
-		...
-	]
+	Run: runDNSVerifier,
+}
 
-CSV File:
-	url
-	url1.com
-	url2.com
-	...`,
+// runDNSVerifier contains the main logic of the DNS verifier
+func runDNSVerifier(cmd *cobra.Command, args []string) {
+	cfg := config.GetFlagConfig()
+	getInputConfig(cfg)
+	getOutputConfig(cfg)
+	getTimeoutConfig(cfg)
+	getTriesConfig(cfg)
 
-	Run: func(cmd *cobra.Command, args []string) {
-		cfg := config.GetConfig()
-		if inputType == cfg.InputType && inputFile == cfg.InputFile {
-			log.Info("Using default values")
-			res, err := inputTypeSelector()
-			if err != nil {
-				log.Fatal(err)
-			}
-			inputType = res
-			if inputType == "Terminal" {
-				res, err := terminalInput()
-				if err != nil {
-					log.Fatal(err)
-				}
-				input = res
-			} else {
-				res, err := inputFilePath()
-				if err != nil {
-					log.Fatal(err)
-				}
-				inputFile = res
+	// log.Infow("Configuration",
+	// 	"Input Type", inputType,
+	// 	"Input", input,
+	// 	"Output Type", outputType,
+	// 	"Output File", outputFile,
+	// 	"Timeout", timeout,
+	// 	"Tries", tries,
+	// )
 
-				// read file
-			}
-		}
+	domains, err := reader.HandlerFactory(inputType).Handle(input)()
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
 
-		if outputType == cfg.OutputType && outputFile == cfg.OutputFile {
-			log.Info("Using default values")
-			res, err := outputTypeSelector()
-			if err != nil {
-				log.Fatal(err)
-			}
-			outputType = res
-			if outputType != "Terminal" {
-				res, err := outputFilePath()
-				if err != nil {
-					log.Fatal(err)
-				}
-				outputFile = res
-			}
-		}
-		timeout, err := timeoutSelector()
+	log.Infow("Domains", "Domains: ", domains)
+
+}
+
+// getInputConfig handles input configuration
+func getInputConfig(cfg config.FlagConfig) {
+	var err error
+	if inputType == cfg.InputType && inputFile == cfg.InputFile {
+		log.Info("Using default input values")
+		inputType, err = inputTypeSelector()
+
+		log.Info(inputType)
 		if err != nil {
 			log.Fatal(err)
 		}
-		tries, err := triesSelector()
+		if inputType == "terminal" {
+			input, err = terminalInput()
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			inputFile, err = inputFilePath()
+			if err != nil {
+				log.Fatal(err)
+			}
+			// read the file
+			input = readFile(inputFile)
+		}
+
+	}
+}
+
+func readFile(inputFile string) string {
+	// read the file
+	file, err := os.ReadFile(inputFile)
+	if err != nil {
+		log.Fatal(err)
+		return ""
+	}
+	return string(file)
+}
+
+// getOutputConfig handles output configuration
+func getOutputConfig(cfg config.FlagConfig) {
+	var err error
+	if outputType == cfg.OutputType && outputFile == cfg.OutputFile {
+		log.Info("Using default output values")
+		outputType, err = outputTypeSelector()
 		if err != nil {
 			log.Fatal(err)
 		}
+		if outputType != "Terminal" {
+			outputFile, err = outputFilePath()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
+}
 
-		log.Infow("Configuration", "Input Type", inputType, "Input File", inputFile, "Output Type", outputType, "Output File", outputFile, "Timeout", timeout, "Tries", tries)
+// getTimeoutConfig handles timeout configuration
+func getTimeoutConfig(cfg config.FlagConfig) {
 
-	},
+	if timeout == -1 {
+		if isMainPersistentFlagSet {
+			timeout = cfg.Timeout
+		} else {
+			var err error
+			timeout, err = timeoutSelector()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
+}
+
+// getTriesConfig handles tries configuration
+func getTriesConfig(cfg config.FlagConfig) {
+	if isMainPersistentFlagSet && tries == -1 {
+		tries = cfg.Tries
+	} else if tries == -1 {
+		var err error
+		tries, err = triesSelector()
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		tries = cfg.Tries
+	}
 }
 
 func Execute(l *logger.Logger) {
@@ -111,13 +158,14 @@ func init() {
 
 func initializeFlags() {
 
-	cfg := config.GetConfig()
+	cfg := config.GetFlagConfig()
 
-	rootCmd.PersistentFlags().StringVarP(&inputType, "input-type", "i", cfg.InputType, "Input type for the DNS Verifier (csv, json, txt)")
-	rootCmd.PersistentFlags().StringVarP(&inputFile, "input-file", "f", cfg.InputFile, "Input file for the DNS Verifier")
-	rootCmd.PersistentFlags().StringVarP(&outputType, "output-type", "o", cfg.OutputType, "Output type for the DNS Verifier")
-	rootCmd.PersistentFlags().StringVarP(&outputFile, "output-file", "O", cfg.OutputFile, "Output file for the DNS Verifier")
-	rootCmd.PersistentFlags().IntVarP(&timeout, "timeout", "t", cfg.Timeout, "Timeout for the network calls made( in seconds )")
-	rootCmd.PersistentFlags().IntVarP(&tries, "tries", "T", cfg.Tries, "Tries for the DNS Verifier")
+	rootCmd.PersistentFlags().StringVarP(&inputType, "input-type", "i", cfg.InputType, "Input type for the DNS Verifier (csv, json, txt, terminal)")
+	rootCmd.PersistentFlags().StringVarP(&inputFile, "input-file", "f", cfg.InputFile, "Input file path for the DNS Verifier( Not needed for terminal input )")
+	rootCmd.PersistentFlags().StringVarP(&outputType, "output-type", "o", cfg.OutputType, "Output type for the DNS Verifier (json, yml, terminal)")
+	rootCmd.PersistentFlags().StringVarP(&outputFile, "output-file", "O", cfg.OutputFile, "Output file for the DNS Verifier ( Not needed for terminal output )")
+	rootCmd.PersistentFlags().IntVarP(&timeout, "timeout", "t", -1, "Timeout for the network calls made( in seconds )")
+	rootCmd.PersistentFlags().IntVarP(&tries, "tries", "T", -1, "Tries for the DNS Verifier")
 
+	isMainPersistentFlagSet = len(inputFile)+len(inputType)+len(outputFile)+len(outputType) > 0
 }

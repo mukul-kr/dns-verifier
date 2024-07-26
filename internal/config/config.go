@@ -13,18 +13,33 @@ type FlagConfig struct {
 	Tries      int
 }
 
+type CobraConfig struct {
+	Use   string
+	Short string
+	Long  string
+}
+
 var (
 	defaultFlag FlagConfig
+	cobraConfig CobraConfig
 )
+
+func GetFlagConfig() FlagConfig {
+	return defaultFlag
+}
+
+func GetCobraConfig() CobraConfig {
+	return cobraConfig
+}
 
 func InitConfig() {
 
 	viper.AutomaticEnv()
 
 	// Set default values
-	viper.SetDefault("INPUT_TYPE", "file")
+	viper.SetDefault("INPUT_TYPE", "")
 	viper.SetDefault("INPUT_FILE", "")
-	viper.SetDefault("OUTPUT_TYPE", "file")
+	viper.SetDefault("OUTPUT_TYPE", "")
 	viper.SetDefault("OUTPUT_FILE", "")
 	viper.SetDefault("TIMEOUT", 5)
 	viper.SetDefault("TRIES", 1)
@@ -37,8 +52,26 @@ func InitConfig() {
 		Timeout:    viper.GetInt("TIMEOUT"),
 		Tries:      viper.GetInt("TRIES"),
 	}
-}
+	cobraConfig = CobraConfig{
+		Use:   "dns_verifier",
+		Short: "A simple DNS configuration for domains are properly set or not",
+		Long: `A simple DNS configuration for domains are properly set or not
+Text File:
+	url1.com
+	url2.com
+	...
 
-func GetConfig() FlagConfig {
-	return defaultFlag
+JSON File:
+	[
+		{"url": "url1.com"},
+		{"url": "url2.com"},
+		...
+	]
+
+CSV File:
+	url
+	url1.com
+	url2.com
+	...`,
+	}
 }
