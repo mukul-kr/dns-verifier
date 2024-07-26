@@ -1,7 +1,6 @@
 package checker
 
 import (
-	"fmt"
 	"net"
 
 	"github.com/mukul-kr/dns-verifier/pkg/report"
@@ -12,7 +11,6 @@ func validate_a(domain string) ([]report.Record, error) {
 	if err != nil {
 		return []report.Record{}, err
 	}
-	fmt.Println(ips)
 	var records []report.Record
 	for _, ip := range ips {
 		if net.ParseIP(ip.String()) == nil {

@@ -16,12 +16,12 @@ func stringValidator(input string) error {
 	return nil
 }
 
-func inputTypeSelector() (string, error) {
+type Option struct {
+	Name string
+	Ext  string
+}
 
-	type Option struct {
-		Name string
-		Ext  string
-	}
+func inputTypeSelector() (string, error) {
 
 	options := []Option{
 		{Name: "Text File", Ext: "txt"},
@@ -77,14 +77,29 @@ func terminalInput() (string, error) {
 }
 
 func outputTypeSelector() (string, error) {
-	prompt := promptui.Select{
-		Label: "Choose Output Type",
-		Items: []string{"YML File", "JSON File", "Terminal"},
+
+	options := []Option{
+		{Name: "JSON File", Ext: "json"},
+		{Name: "Terminal", Ext: "terminal"},
+		{Name: "YML File", Ext: "yml"},
 	}
 
-	_, result, err := prompt.Run()
+	items := make([]string, len(options))
+	for i, option := range options {
+		items[i] = option.Name
+	}
 
-	return result, err
+	prompt := promptui.Select{
+		Label: "Choose Output Type",
+		Items: items,
+	}
+
+	index, _, err := prompt.Run()
+	if err != nil {
+		return "", err
+	}
+
+	return options[index].Ext, nil
 }
 
 func outputFilePath() (string, error) {

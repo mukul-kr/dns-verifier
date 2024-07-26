@@ -13,4 +13,5 @@ func main() {
 		panic(err)
 	}
 	cmd.Execute(log)
+
 }

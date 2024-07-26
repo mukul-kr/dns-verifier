@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"sync"
 
@@ -42,23 +41,11 @@ func runDNSVerifier(cmd *cobra.Command, args []string) {
 	getTimeoutConfig(cfg)
 	getTriesConfig(cfg)
 
-	// log.Infow("Configuration",
-	// 	"Input Type", inputType,
-	// 	"Input File", inputFile,
-	// 	"Input", input,
-	// 	"Output Type", outputType,
-	// 	"Output File", outputFile,
-	// 	"Timeout", timeout,
-	// 	"Tries", tries,
-	// )
-	// fmt.Println(input)
 	domains, err := reader.HandlerFactory(inputType).Handle(input)()
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
 	}
-
-	// log.Infow("Domains", "Domains: ", domains)
 
 	data := &report.Data{}
 
@@ -74,7 +61,8 @@ func runDNSVerifier(cmd *cobra.Command, args []string) {
 	wg.Wait()
 
 	checker.ProcessWg.Wait()
-	fmt.Print(data)
+
+	data.HandleDisplay(outputType, outputFile)
 	// output the data
 
 }
@@ -128,7 +116,7 @@ func getOutputConfig(cfg config.FlagConfig) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		if outputType != "Terminal" {
+		if outputType != "terminal" {
 			outputFile, err = outputFilePath()
 			if err != nil {
 				log.Fatal(err)

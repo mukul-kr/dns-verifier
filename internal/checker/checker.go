@@ -35,7 +35,6 @@ func CheckRecords(domainName string, d *report.Data) {
 			}
 
 			for _, r := range record {
-				fmt.Println(fmt.Sprintf("Checking %s record for %s", r.RecordName, domainName), "Status", r.Status, "Value", r.Value)
 				recordChannel <- r
 			}
 			// wg.Wait()
@@ -55,13 +54,11 @@ func RegisterCheckFunction(f func(string) ([]report.Record, error)) {
 }
 
 func init() {
-	// l, _ := logger.NewLogger()
 
 	RegisterCheckFunction(validate_a)
-}
+	RegisterCheckFunction(validate_cname)
+	RegisterCheckFunction(validate_dkim)
+	RegisterCheckFunction(validate_dmarc)
+	RegisterCheckFunction(validate_spf)
 
-// func validate_a(domainName string) ([]report.Record, error) {
-// 	return []report.Record{
-// 		{RecordName: "A", Status: "ok", Value: "1.1.1.1"},
-// 	}, nil
-// }
+}

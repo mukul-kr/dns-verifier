@@ -24,4 +24,8 @@ go.work.sum
 # env file
 .env
 
-inputs/
+inputs/*.txt
+inputs/*.csv
+inputs/*.json
+outputs/*.yml
+outputs/*.json
