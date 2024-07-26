@@ -1,11 +1,15 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
+	"sync"
 
+	"github.com/mukul-kr/dns-verifier/internal/checker"
 	"github.com/mukul-kr/dns-verifier/internal/config"
 	"github.com/mukul-kr/dns-verifier/pkg/logger"
 	"github.com/mukul-kr/dns-verifier/pkg/reader"
+	"github.com/mukul-kr/dns-verifier/pkg/report"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
@@ -40,20 +44,38 @@ func runDNSVerifier(cmd *cobra.Command, args []string) {
 
 	// log.Infow("Configuration",
 	// 	"Input Type", inputType,
+	// 	"Input File", inputFile,
 	// 	"Input", input,
 	// 	"Output Type", outputType,
 	// 	"Output File", outputFile,
 	// 	"Timeout", timeout,
 	// 	"Tries", tries,
 	// )
-
+	// fmt.Println(input)
 	domains, err := reader.HandlerFactory(inputType).Handle(input)()
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
 	}
 
-	log.Infow("Domains", "Domains: ", domains)
+	// log.Infow("Domains", "Domains: ", domains)
+
+	data := &report.Data{}
+
+	var wg sync.WaitGroup
+	for _, domain := range domains {
+		wg.Add(1)
+		go func(domain string) {
+			defer wg.Done()
+			data.AddDomain(domain)
+			checker.CheckRecords(domain, data)
+		}(domain)
+	}
+	wg.Wait()
+
+	checker.ProcessWg.Wait()
+	fmt.Print(data)
+	// output the data
 
 }
 
@@ -61,7 +83,7 @@ func runDNSVerifier(cmd *cobra.Command, args []string) {
 func getInputConfig(cfg config.FlagConfig) {
 	var err error
 	if inputType == cfg.InputType && inputFile == cfg.InputFile {
-		log.Info("Using default input values")
+		// log.Info("Using default input values")
 		inputType, err = inputTypeSelector()
 
 		log.Info(inputType)
@@ -81,7 +103,9 @@ func getInputConfig(cfg config.FlagConfig) {
 			// read the file
 			input = readFile(inputFile)
 		}
-
+	} else {
+		// read the file
+		input = readFile(inputFile)
 	}
 }
 
@@ -99,7 +123,7 @@ func readFile(inputFile string) string {
 func getOutputConfig(cfg config.FlagConfig) {
 	var err error
 	if outputType == cfg.OutputType && outputFile == cfg.OutputFile {
-		log.Info("Using default output values")
+		// log.Info("Using default output values")
 		outputType, err = outputTypeSelector()
 		if err != nil {
 			log.Fatal(err)

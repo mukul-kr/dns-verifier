@@ -56,7 +56,7 @@ func inputFilePath() (string, error) {
 
 	result, err := prompt.Run()
 	if err != nil {
-		log.Infow("Error", "Error", err)
+		log.Fatal("Error", "Error", err)
 		return "", err
 	}
 
