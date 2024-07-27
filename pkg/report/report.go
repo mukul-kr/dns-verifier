@@ -98,13 +98,16 @@ func (d *Data) HandleDisplay(outputType, outputFile string) {
 		if err != nil {
 			log.Fatal(err)
 		}
+		fmt.Printf("Report generated and saved at %s\n", outputFile)
 	case "terminal":
 		fmt.Println(d.ToYAML())
 	case "yml":
+
 		err := d.SaveToFile(outputFile, "yaml")
 		if err != nil {
 			log.Fatal(err)
 		}
+		fmt.Printf("Report generated and saved at %s\n", outputFile)
 	}
 }
 

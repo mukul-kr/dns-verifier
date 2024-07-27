@@ -21,7 +21,11 @@ func (h CSVHandler) Handle(content string) func() ([]string, error) {
 
 		// Flatten the records into a single list of strings
 		var result []string
-		for _, record := range records {
+		for i, record := range records {
+			if i == 0 {
+				// Skip the header row
+				continue
+			}
 			result = append(result, record...)
 		}
 		return result, nil

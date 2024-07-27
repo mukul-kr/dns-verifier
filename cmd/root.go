@@ -28,20 +28,32 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   config.GetCobraConfig().Use,
-	Short: config.GetCobraConfig().Short,
-	Long:  config.GetCobraConfig().Long,
+	Use:   "dns_verifier",
+	Short: "A simple DNS configuration for domains are properly set or not",
+	Long: `A simple DNS configuration for domains are properly set or not
+Text File:
+	url1.com,url2.com,...
+
+JSON File:
+	[
+		{"url": "url1.com"},
+		{"url": "url2.com"},
+		...
+	]
+
+CSV File:
+	url
+	url1.com
+	url2.com
+	...`,
 
 	Run: runDNSVerifier,
 }
 
-// runDNSVerifier contains the main logic of the DNS verifier
 func runDNSVerifier(cmd *cobra.Command, args []string) {
 	cfg := config.GetFlagConfig()
 	getInputConfig(cfg)
 	getOutputConfig(cfg)
-	getTimeoutConfig(cfg)
-	getTriesConfig(cfg)
 
 	domains, err := reader.HandlerFactory(inputType).Handle(input)()
 	if err != nil {
@@ -64,8 +76,7 @@ func runDNSVerifier(cmd *cobra.Command, args []string) {
 
 	checker.ProcessWg.Wait()
 
-	data.HandleDisplay(outputType, outputFile)
-	// output the data
+	data.HandleDisplay(outputType, outputFile) // output the data in the output type format
 
 }
 
@@ -91,28 +102,42 @@ func getInputConfig(cfg config.FlagConfig) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			// read the file
 
 			typeValidation(inputFile, inputType, "input")
 
+			// read the file
 			input = readFile(inputFile)
 		}
 	} else {
-		// read the file
-		typeValidation(inputFile, inputType, "input")
-		input = readFile(inputFile)
+		if inputType == "terminal" {
+			input, err = terminalInput()
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			inputFile, err = inputFilePath()
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			typeValidation(inputFile, inputType, "input")
+
+			// read the file
+			input = readFile(inputFile)
+		}
 	}
 }
 
 func typeValidation(t1, t2, t string) {
 	if !strings.Contains(t1, t2) {
-		fmt.Println(fmt.Sprintf("%s file type and %s type are not same", t, t))
+		log.Error(fmt.Sprintf("%s file type and %s type are not same. %s type selected is %s\n", t, t, t, t2))
 		os.Exit(1)
 	}
 }
 
 func readFile(inputFile string) string {
-	// read the file
+	// read the file, remember to handle io error correctly
 	file, err := os.ReadFile(inputFile)
 	if err != nil {
 		log.Fatal(err)
@@ -140,37 +165,6 @@ func getOutputConfig(cfg config.FlagConfig) {
 	}
 }
 
-// getTimeoutConfig handles timeout configuration
-func getTimeoutConfig(cfg config.FlagConfig) {
-
-	if timeout == -1 {
-		if isMainPersistentFlagSet {
-			timeout = cfg.Timeout
-		} else {
-			var err error
-			timeout, err = timeoutSelector()
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
-	}
-}
-
-// getTriesConfig handles tries configuration
-func getTriesConfig(cfg config.FlagConfig) {
-	if isMainPersistentFlagSet && tries == -1 {
-		tries = cfg.Tries
-	} else if tries == -1 {
-		var err error
-		tries, err = triesSelector()
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		tries = cfg.Tries
-	}
-}
-
 func Execute(l *logger.Logger) {
 	log = l.Named("cmd")
 	if err := rootCmd.Execute(); err != nil {
@@ -191,8 +185,6 @@ func initializeFlags() {
 	rootCmd.PersistentFlags().StringVarP(&inputFile, "input-file", "f", cfg.InputFile, "Input file path for the DNS Verifier( Not needed for terminal input )")
 	rootCmd.PersistentFlags().StringVarP(&outputType, "output-type", "o", cfg.OutputType, "Output type for the DNS Verifier (json, yml, terminal)")
 	rootCmd.PersistentFlags().StringVarP(&outputFile, "output-file", "O", cfg.OutputFile, "Output file for the DNS Verifier ( Not needed for terminal output )")
-	rootCmd.PersistentFlags().IntVarP(&timeout, "timeout", "t", -1, "Timeout for the network calls made( in seconds )")
-	rootCmd.PersistentFlags().IntVarP(&tries, "tries", "T", -1, "Tries for the DNS Verifier")
 
 	isMainPersistentFlagSet = len(inputFile)+len(inputType)+len(outputFile)+len(outputType) > 0
 }
