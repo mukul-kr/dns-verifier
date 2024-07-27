@@ -1,0 +1,346 @@
+{
+  "domains": [
+    {
+      "domainname": "github.com",
+      "records": [
+        {
+          "recordname": "DMARC",
+          "status": "warn",
+          "value": {
+            "p": "reject;",
+            "pct": "100;",
+            "rua": "mailto:dmarc@github.com",
+            "v": "DMARC1;"
+          },
+          "info": "; reporting address not found"
+        },
+        {
+          "recordname": "SPF",
+          "status": "Pass",
+          "value": {
+            "include": "servers.mcsv.net",
+            "ip4": "62.253.227.114",
+            "param19": "~all",
+            "v": "spf1"
+          },
+          "info": ""
+        },
+        {
+          "recordname": "A",
+          "status": "Pass",
+          "value": "20.207.73.82",
+          "info": ""
+        },
+        {
+          "recordname": "CNAME",
+          "status": "Pass",
+          "value": "github.com.",
+          "info": ""
+        },
+        {
+          "recordname": "DKIM",
+          "status": "warn",
+          "value": {
+            "k": "rsa;",
+            "p": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDPtW5iwpXVPiH5FzJ7Nrl8USzuY9zqqzjE0D1r04xDN6qwziDnmgcFNNfMewVKN2D1O+2J9N14hRprzByFwfQW76yojh54Xu3uSbQ3JP0A7k8o8GutRF8zbFUA8n0ZH2y0cIEjMliXY4W4LwPA7m4q0ObmvSjhd63O9d8z1XkUBwIDAQAB",
+            "t": "s;"
+          },
+          "info": "DKIM1 not found; key not found"
+        }
+      ]
+    },
+    {
+      "domainname": "zoho.com",
+      "records": [
+        {
+          "recordname": "DMARC",
+          "status": "Pass",
+          "value": {
+            "fo": "0;",
+            "p": "reject;",
+            "rua": "mailto:dmarcaggregation@zoho.com;",
+            "ruf": "mailto:dmarcaggregation@zoho.com",
+            "sp": "reject;",
+            "v": "DMARC1;"
+          },
+          "info": ""
+        },
+        {
+          "recordname": "SPF",
+          "status": "Pass",
+          "value": {
+            "include": "zcsend.net",
+            "param2": "-all",
+            "v": "spf1"
+          },
+          "info": ""
+        },
+        {
+          "recordname": "A",
+          "status": "Pass",
+          "value": "136.143.190.155",
+          "info": ""
+        },
+        {
+          "recordname": "CNAME",
+          "status": "Pass",
+          "value": "zoho.com.",
+          "info": ""
+        },
+        {
+          "recordname": "DKIM",
+          "status": "warn",
+          "value": {
+            "k": "rsa;",
+            "p": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCr6KMgdxxgg7oT3ulMwPJs9RXgXDrI9UWU118pHEMohl3UbL3Jwp4oxp/9N3thh/3WCJnYV134zbEVolZwqaT3JsFEq/mQ/RpW/JnOZ3rnxqJPurb2bcfJol4SDxiWVObzHX31xnANzFcXnq1/5dMK5QvW4Jh7n0fm4+4ywqiy2QIDAQAB"
+          },
+          "info": "DKIM1 not found; key not found"
+        }
+      ]
+    },
+    {
+      "domainname": "atomicwork.com",
+      "records": [
+        {
+          "recordname": "DMARC",
+          "status": "Pass",
+          "value": {
+            "p": "none;",
+            "rua": "mailto:dmarcreports@atomicwork.com,mailto:dmarc_agg@vali.email;",
+            "ruf": "mailto:dmarcreports@atomicwork.com;",
+            "v": "DMARC1;"
+          },
+          "info": ""
+        },
+        {
+          "recordname": "SPF",
+          "status": "Pass",
+          "value": {
+            "include": "sendgrid.net",
+            "param2": "-all",
+            "v": "spf1"
+          },
+          "info": ""
+        },
+        {
+          "recordname": "A",
+          "status": "Pass",
+          "value": "99.83.190.102",
+          "info": ""
+        },
+        {
+          "recordname": "A",
+          "status": "Pass",
+          "value": "75.2.70.75",
+          "info": ""
+        },
+        {
+          "recordname": "CNAME",
+          "status": "Pass",
+          "value": "atomicwork.com.",
+          "info": ""
+        },
+        {
+          "recordname": "DKIM",
+          "status": "Fail",
+          "value": "",
+          "info": "DKIM record not found"
+        }
+      ]
+    },
+    {
+      "domainname": "amazon.com",
+      "records": [
+        {
+          "recordname": "DMARC",
+          "status": "warn",
+          "value": {
+            "v": "DMARC1;p"
+          },
+          "info": "; policy not found; reporting URI not found; reporting address not found"
+        },
+        {
+          "recordname": "SPF",
+          "status": "Pass",
+          "value": {
+            "include": "amazonses.com",
+            "param3": "-all",
+            "v": "spf1"
+          },
+          "info": ""
+        },
+        {
+          "recordname": "A",
+          "status": "Pass",
+          "value": "54.239.28.85",
+          "info": ""
+        },
+        {
+          "recordname": "A",
+          "status": "Pass",
+          "value": "205.251.242.103",
+          "info": ""
+        },
+        {
+          "recordname": "A",
+          "status": "Pass",
+          "value": "52.94.236.248",
+          "info": ""
+        },
+        {
+          "recordname": "CNAME",
+          "status": "Pass",
+          "value": "amazon.com.",
+          "info": ""
+        },
+        {
+          "recordname": "DKIM",
+          "status": "warn",
+          "value": {
+            "p": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCd5PjSyP+BPN8MQqqFwZLXeT9nI3alnkyVvHd7G6V7krWWJBbzjUqKbkeSl1PapQgy8SqFreAN81hWs5+UJjhil7uAIim9RfKgFjPmioOsiTvoczZNP/qN6XcIyk9Z9+ucv4VoDTONCOFMIYfNqaeKPRNtBvh4s11Y419adNy83wIDAQAB"
+          },
+          "info": "DKIM1 not found; key not found; public key not found"
+        }
+      ]
+    },
+    {
+      "domainname": "gmail.com",
+      "records": [
+        {
+          "recordname": "DMARC",
+          "status": "warn",
+          "value": {
+            "p": "none;",
+            "rua": "mailto:mailauth-reports@google.com",
+            "sp": "quarantine;",
+            "v": "DMARC1;"
+          },
+          "info": "; reporting address not found"
+        },
+        {
+          "recordname": "SPF",
+          "status": "Fail",
+          "value": {
+            "redirect": "_spf.google.com",
+            "v": "spf1"
+          },
+          "info": "no authorised domain included"
+        },
+        {
+          "recordname": "A",
+          "status": "Pass",
+          "value": "142.250.194.5",
+          "info": ""
+        },
+        {
+          "recordname": "CNAME",
+          "status": "Pass",
+          "value": "gmail.com.",
+          "info": ""
+        },
+        {
+          "recordname": "DKIM",
+          "status": "warn",
+          "value": {
+            "k": "rsa;",
+            "p": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAntvSKT1hkqhKe0xcaZ0x+QbouDsJuBfby/S82jxsoC/SodmfmVs2D1KAH3mi1AqdMdU12h2VfETeOJkgGYq5ljd996AJ7ud2SyOLQmlhaNHH7Lx+Mdab8/zDN1SdxPARDgcM7AsRECHwQ15R20FaKUABGu4NTbR2fDKnYwiq5jQyBkLWP+LgGOgfUF4T4HZb2PY2bQtEP6QeqOtcW4rrsH24L7XhD+HSZb1hsitrE0VPbhJzxDwI4JF815XMnSVjZgYUXP8CxI1Y0FONlqtQYgsorZ9apoW1KPQe8brSSlRsi9sXB/tu56LmG7tEDNmrZ5XUwQYUUADBOu7t1niwXwIDAQAB",
+            "v": "DKIM1;"
+          },
+          "info": "; key not found"
+        }
+      ]
+    },
+    {
+      "domainname": "google.com",
+      "records": [
+        {
+          "recordname": "DMARC",
+          "status": "warn",
+          "value": {
+            "p": "reject;",
+            "rua": "mailto:mailauth-reports@google.com",
+            "v": "DMARC1;"
+          },
+          "info": "; reporting address not found"
+        },
+        {
+          "recordname": "SPF",
+          "status": "Pass",
+          "value": {
+            "include": "_spf.google.com",
+            "param1": "~all",
+            "v": "spf1"
+          },
+          "info": ""
+        },
+        {
+          "recordname": "A",
+          "status": "Pass",
+          "value": "142.250.194.206",
+          "info": ""
+        },
+        {
+          "recordname": "CNAME",
+          "status": "Pass",
+          "value": "google.com.",
+          "info": ""
+        },
+        {
+          "recordname": "DKIM",
+          "status": "warn",
+          "value": {
+            "k": "rsa;",
+            "p": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4zd3nfUoLHWFbfoPZzAb8bvjsFIIFsNypweLuPe4M+vAP1YxObFxRnpvLYz7Z+bORKLber5aGmgFF9iaufsH1z0+aw8Qex7uDaafzWoJOM/6lAS5iI0JggZiUkqNpRQLL7H6E7HcvOMC61nJcO4r0PwLDZKwEaCs8gUHiqRn/SS3wqEZX29v/VOUVcI4BjaOzOCLaz7V8Bkwmj4Rqq4kaLQQrbfpjas1naScHTAmzULj0Rdp+L1vVyGitm+dd460PcTIG3Pn+FYrgQQo2fvnTcGiFFuMa8cpxgfH3rJztf1YFehLWwJWgeXTriuIyuxUabGdRQu7vh7GrObTsHmIHwIDAQAB",
+            "v": "DKIM1;"
+          },
+          "info": "; key not found"
+        }
+      ]
+    },
+    {
+      "domainname": "suvidhaen.com",
+      "records": [
+        {
+          "recordname": "SPF",
+          "status": "Pass",
+          "value": {
+            "include": "zoho.in",
+            "param1": "~all",
+            "v": "spf1"
+          },
+          "info": ""
+        },
+        {
+          "recordname": "A",
+          "status": "Pass",
+          "value": "172.67.170.192",
+          "info": ""
+        },
+        {
+          "recordname": "A",
+          "status": "Pass",
+          "value": "104.21.55.78",
+          "info": ""
+        },
+        {
+          "recordname": "CNAME",
+          "status": "Pass",
+          "value": "suvidhaen.com.",
+          "info": ""
+        },
+        {
+          "recordname": "DMARC",
+          "status": "Fail",
+          "value": "",
+          "info": "DMARC not found"
+        },
+        {
+          "recordname": "DKIM",
+          "status": "Fail",
+          "value": "",
+          "info": "DKIM record not found"
+        }
+      ]
+    }
+  ]
+}

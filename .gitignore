@@ -25,5 +25,4 @@ go.work.sum
 .env
 
 
-outputs/*.yml
-outputs/*.json
+inputs/*
