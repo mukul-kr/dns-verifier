@@ -1,6 +1,7 @@
 package checker
 
 import (
+	"fmt"
 	"net"
 	"strings"
 
@@ -8,8 +9,8 @@ import (
 )
 
 // validate_spf validates the SPF record for a given domain.
-func validate_spf(domain string) ([]report.Record, error) {
-	txtRecords, err := net.LookupTXT(domain)
+func validate_spf(domain string, checker IPChecker) ([]report.Record, error) {
+	txtRecords, err := checker.GetTxtRecords(domain)
 	if err != nil {
 		return []report.Record{}, err
 	}
@@ -17,26 +18,22 @@ func validate_spf(domain string) ([]report.Record, error) {
 	var records []report.Record
 	for _, txt := range txtRecords {
 
-		parsedSPF, isValid, reason := parseSPF(txt, domain)
+		if !strings.HasPrefix(txt, "v=spf1") {
+			continue
+		}
+
+		parsedSPF, isValid, reason := checker.ParseSPF(txt)
 		status := "Pass"
 		if !isValid {
 			status = "Fail"
 		}
-		if reason != "" {
-			records = append(records, report.Record{
-				RecordName: "SPF",
-				Status:     status,
-				Value:      parsedSPF,
-			})
-		} else {
-			records = append(records, report.Record{
-				RecordName: "SPF",
-				Status:     status,
-				Value:      parsedSPF,
-				Info:       reason,
-			})
-		}
 
+		records = append(records, report.Record{
+			RecordName: "SPF",
+			Status:     status,
+			Value:      parsedSPF,
+			Info:       reason,
+		})
 	}
 
 	if len(records) == 0 {
@@ -47,27 +44,40 @@ func validate_spf(domain string) ([]report.Record, error) {
 }
 
 // parseSPF parses the SPF record into its components and checks its validity.
-func parseSPF(spf, domain string) (map[string]string, bool, string) {
+func (c *DefaultIPChecker) ParseSPF(spf string) (map[string]string, bool, string) {
 	components := strings.Fields(spf)
 	spfMap := make(map[string]string)
 	reason := ""
-	isValid := false
-	if components[0] == "v=spf1" {
+	isValid := true
+	if strings.Contains(spf, "v=spf") {
 		spfMap["v"] = "spf1"
-		isValid = true
+		// isValid = true
 	} else {
 		reason = "v=spf1 not found"
 		return spfMap, false, reason
 	}
+	if !strings.Contains(spf, "include") {
+		isValid = false
+		reason = "no authorised domain included"
+	}
 
 	for i, comp := range components[1:] {
-		key := "param" + string(i)
-		if !strings.Contains(comp, "include") {
-			isValid = false
-			reason = "no authorised domain included"
+		key := "param" + fmt.Sprint(i)
+
+		splitbyequal := strings.Split(comp, "=")
+		splitbycolon := strings.Split(comp, ":")
+		if len(splitbyequal) == 2 {
+			spfMap[splitbyequal[0]] = splitbyequal[1]
+		} else if len(splitbycolon) == 2 {
+			spfMap[splitbycolon[0]] = splitbycolon[1]
+		} else {
+			spfMap[key] = comp
 		}
-		spfMap[key] = comp
 	}
 
 	return spfMap, isValid, reason
+}
+
+func (c *DefaultIPChecker) GetTxtRecords(domain string) ([]string, error) {
+	return net.LookupTXT(domain)
 }

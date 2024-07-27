@@ -11,8 +11,8 @@
             "mode": "debug",
             "program": "${workspaceFolder}/main.go",
             "args": [
-                "-i", "txt",
-                "-f", "./inputs/sample.txt",
+                "-i", "json",
+                "-f", "./inputs/sample.json",
                 "-o", "yml",
                 "-O", "./outputs/sample.yml",
                 "-t", "3",

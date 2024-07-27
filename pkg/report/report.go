@@ -44,7 +44,7 @@ func (d *Data) AddDomain(domainName string) {
 	})
 }
 
-func (d *Data) AddRecord(domainName, recordName, status string, value interface{}) {
+func (d *Data) AddRecord(domainName, recordName, status string, value interface{}, info string) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	var domain *Domain
@@ -57,11 +57,20 @@ func (d *Data) AddRecord(domainName, recordName, status string, value interface{
 	if domain == nil {
 		return
 	}
-	domain.Records = append(domain.Records, Record{
-		RecordName: recordName,
-		Status:     status,
-		Value:      value,
-	})
+	if len(info) != 0 {
+		domain.Records = append(domain.Records, Record{
+			RecordName: recordName,
+			Status:     status,
+			Value:      value,
+			Info:       info,
+		})
+	} else {
+		domain.Records = append(domain.Records, Record{
+			RecordName: recordName,
+			Status:     status,
+			Value:      value,
+		})
+	}
 }
 
 // ToJSON converts the Data struct to a JSON string
@@ -114,7 +123,6 @@ func (d *Data) SaveToFile(filename, format string) error {
 
 	switch format {
 	case "json":
-		fmt.Println("Saving to JSON")
 		data, err = d.ToJSON()
 	case "yaml":
 		data, err = d.ToYAML()

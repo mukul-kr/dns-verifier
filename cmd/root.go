@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/mukul-kr/dns-verifier/internal/checker"
@@ -85,15 +87,27 @@ func getInputConfig(cfg config.FlagConfig) {
 			}
 		} else {
 			inputFile, err = inputFilePath()
+
 			if err != nil {
 				log.Fatal(err)
 			}
 			// read the file
+
+			typeValidation(inputFile, inputType, "input")
+
 			input = readFile(inputFile)
 		}
 	} else {
 		// read the file
+		typeValidation(inputFile, inputType, "input")
 		input = readFile(inputFile)
+	}
+}
+
+func typeValidation(t1, t2, t string) {
+	if !strings.Contains(t1, t2) {
+		fmt.Println(fmt.Sprintf("%s file type and %s type are not same", t, t))
+		os.Exit(1)
 	}
 }
 
@@ -121,6 +135,7 @@ func getOutputConfig(cfg config.FlagConfig) {
 			if err != nil {
 				log.Fatal(err)
 			}
+			typeValidation(outputFile, outputType, "output")
 		}
 	}
 }

@@ -7,12 +7,12 @@ import (
 	"github.com/mukul-kr/dns-verifier/pkg/report"
 )
 
-func validate_dmarc(domain string) ([]report.Record, error) {
+func validate_dmarc(domain string, checker IPChecker) ([]report.Record, error) {
 	var records []report.Record
 	valueMap := make(map[string]string)
 	var reason string = ""
 	status := "Pass"
-	resp, err := net.LookupTXT("_dmarc." + domain)
+	resp, err := checker.GetDmarcRecords(domain)
 	if err != nil {
 		records = append(records, report.Record{
 			RecordName: "DMARC",
@@ -20,6 +20,7 @@ func validate_dmarc(domain string) ([]report.Record, error) {
 			Value:      "",
 			Info:       "DMARC not found",
 		})
+		return records, nil
 	}
 	for _, txt := range resp {
 		if !strings.Contains(txt, "v=DMARC") {
@@ -47,21 +48,21 @@ func validate_dmarc(domain string) ([]report.Record, error) {
 				valueMap[split[0]] = split[1]
 			}
 		}
-		if reason != "" {
-			records = append(records, report.Record{
-				RecordName: "DMARC",
-				Status:     status,
-				Value:      valueMap,
-				Info:       reason,
-			})
-		} else {
-			records = append(records, report.Record{
-				RecordName: "DMARC",
-				Status:     "Pass",
-				Value:      valueMap,
-			})
+		records = append(records, report.Record{
+			RecordName: "DMARC",
+			Status:     status,
+			Value:      valueMap,
+			Info:       reason,
+		})
 
-		}
 	}
 	return records, nil
+}
+
+func (c *DefaultIPChecker) GetDmarcRecords(domain string) (dmarcs []string, err error) {
+	resp, err := net.LookupTXT("_dmarc." + domain)
+	if err != nil {
+		return []string{}, err
+	}
+	return resp, nil
 }

@@ -7,39 +7,38 @@ import (
 	"github.com/mukul-kr/dns-verifier/pkg/report"
 )
 
-func validate_cname(domain string) ([]report.Record, error) {
-	cname, err := net.LookupCNAME(domain)
+func validate_cname(domain string, checker IPChecker) ([]report.Record, error) {
+	cname, err := checker.GetCnameRecords(domain)
+	var reason string = ""
 	if err != nil {
 		return []report.Record{}, err
 	}
 
 	var records []report.Record
-	if cname == domain {
-		// If the CNAME record is the same as the domain, it's not a valid CNAME record.
-		records = append(records, report.Record{
-			RecordName: "CNAME",
-			Status:     "Fail",
-			Value:      cname,
-		})
-	} else {
-		// Check if the CNAME is reachable
-		err := isReachable(cname)
-		status := "Pass"
-		if err != nil {
-			status = "Fail"
-		}
-		records = append(records, report.Record{
-			RecordName: "CNAME",
-			Status:     status,
-			Value:      cname,
-		})
+
+	// Check if the CNAME is reachable
+	err = checker.IsCNAMEReachable(cname)
+	status := "Pass"
+	if err != nil {
+		status = "Fail"
+		reason = "CNAME is not reachable"
 	}
+	records = append(records, report.Record{
+		RecordName: "CNAME",
+		Status:     status,
+		Value:      cname,
+		Info:       reason,
+	})
 
 	return records, nil
 }
 
+func (c *DefaultIPChecker) GetCnameRecords(domain string) (cname string, err error) {
+	return net.LookupCNAME(domain)
+}
+
 // isReachable checks if the CNAME record is reachable.
-func isReachable(cname string) error {
+func (c *DefaultIPChecker) IsCNAMEReachable(cname string) error {
 	// Resolve the IP address of the CNAME record
 	ips, err := net.LookupIP(cname)
 	if err != nil {
