@@ -115,12 +115,6 @@ func getInputConfig(cfg config.FlagConfig) {
 				log.Fatal(err)
 			}
 		} else {
-			inputFile, err = inputFilePath()
-
-			if err != nil {
-				log.Fatal(err)
-			}
-
 			typeValidation(inputFile, inputType, "input")
 
 			// read the file
