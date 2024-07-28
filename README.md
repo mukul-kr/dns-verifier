@@ -14,6 +14,7 @@ Additional Features:
 - &#x2611; Support for terminal output
 - &#x2611; Support for multiple domain checks (SPF, DKIM, DMARC, A, CNAME)
 - &#x2611; Write test cases for the records
+- &#x2611; Add basic github-action workflow for testing
 
 
 
